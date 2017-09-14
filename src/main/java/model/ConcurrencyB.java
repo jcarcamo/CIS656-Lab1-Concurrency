@@ -14,9 +14,11 @@ public class ConcurrencyB implements Runnable {
 	public void run() {
 		int localProgramCounter = 0;
 		for(int i=0; i< this.EXECUTION_LIMIT; i++){
-			localProgramCounter = counter.getProgramCounter();
-			localProgramCounter++;
-			counter.safeSetProgramCounter(localProgramCounter);
+			synchronized(counter){
+				localProgramCounter = counter.getProgramCounter();
+				localProgramCounter++;
+				counter.setProgramCounter(localProgramCounter);
+			}
 		}
 	}
 	
