@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +14,7 @@ public class ConcurrencyApp{
 		A,
 		B;
 		
+		public String programName;
 		private ConcurrencyA concurrencyA;
 		private ConcurrencyB concurrencyB;
 		
@@ -19,10 +24,48 @@ public class ConcurrencyApp{
 		}
 		
 		public ConcurrencyA getConcurrencyA(){
+			this.programName = "ConcurrencyA";
 			return concurrencyA;
 		}
 		public ConcurrencyB getConcurrencyB(){
+			this.programName = "ConcurrencyB";
 			return concurrencyB;
+		}
+	}
+	
+	public void writeResultsToFile(String filename, long elapsedTime){
+	
+		BufferedWriter bw = null;
+		FileWriter fw = null;
+
+		try {
+			File file = new File(filename);
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			// true = append file
+			fw = new FileWriter(file.getAbsoluteFile(), true);
+			bw = new BufferedWriter(fw);
+			String data = Long.toString(elapsedTime) + "\n";
+			bw.write(data);
+		} catch (IOException e) {
+
+		e.printStackTrace();
+		} finally {
+			try {
+	
+				if (bw != null)
+					bw.close();
+	
+				if (fw != null)
+					fw.close();
+	
+			} catch (IOException ex) {
+	
+				ex.printStackTrace();
+	
+			}
 		}
 	}
 	
@@ -54,16 +97,12 @@ public class ConcurrencyApp{
 			e.printStackTrace();
 		}
 		long finalTime = System.currentTimeMillis() - startTime;
-		StringBuilder outputSb = new StringBuilder();
-		switch(type){
-		case A:
-			outputSb.append("Program A:").append('\n');
-			break;
-		case B:
-			outputSb.append("Program B:").append('\n');
-			break;
-		}
 		
+		
+		this.writeResultsToFile(type.programName+"_"+Integer.toString(threadCount)+".csv", finalTime);
+
+		StringBuilder outputSb = new StringBuilder();
+		outputSb.append(type.programName).append('\n');
 		outputSb.append("Number of threads: ").append(threadCount).append('\n');
 		outputSb.append("Execution Time: ").append(finalTime).append(" milliseconds").append('\n');
 		outputSb.append("Counter Value: ").append(sharedCounter.getProgramCounter()).append('\n');
@@ -96,14 +135,7 @@ public class ConcurrencyApp{
 		app.runConcurrencyTest(threadCount, type,sharedCounter);
 		type = TYPE.B;
 		app.runConcurrencyTest(threadCount, type,sharedCounter);
-		type = TYPE.A;
-		app.runConcurrencyTest(threadCount, type,sharedCounter);
-		type = TYPE.B;
-		app.runConcurrencyTest(threadCount, type,sharedCounter);
-		type = TYPE.A;
-		app.runConcurrencyTest(threadCount, type,sharedCounter);
-		type = TYPE.B;
-		app.runConcurrencyTest(threadCount, type,sharedCounter);
+		System.out.println("Finished Execution");
 
     }
 }
